@@ -1,0 +1,64 @@
+Optimizer components
+======================
+
+# Query Transformer after parsing the query
+Transform the query into better performing one but semantically equivalent
+If the Transform is not better, it uses the original one
+
+OR Expansion - OR will prevent index usage
+
+select * from sales where prod_id = 14 or promo_id= 33;
+
+transforms into 
+
+select * from sales where prod_id = 14
+union all
+select * from sales where promo_id =33 and prod_id <> 14; --
+
+# Selectivity and cardinality 
+
+
+Selectivity =   NUM OF ROWS Returning from qury 
+                -------------------------------
+                TOTAL NUM OF ROWS
+
+
+
+if Selectivity ~ 0 -> 'High Selectivity'
+if Selectivity ~ 1 -> 'Low Selectivity'
+
+
+cardinality = TOTAL number of ROWS * Selectivity
+
+
+Selectivity affects the estimates in I/O cost
+Selectivity affects the sort cost
+cardinality is used to detemine join, sort and filter costs
+Incorrect Selectivity and cardinality = incorrect plan cost estimation
+
+-- The optimizer gets the estimation based on the number of distinct records in the column
+select column_name,num_distinct,last_analyzed from dba_tab_columns where table_name='SALES';
+
+Query Cost :-
+
+* Disk I/O
+* CPU usage
+* Memory Usage
+
+            single-block I/O Cost + Multiblock I/O Cost + CPU Cost
+COST    =   ------------------------------------------------------
+                single-block read time
+
+
+Plan Generator  - Generates multiple plan to drive less cost and optimum plan
+
+ROW Source Generator - 
+    Iteravtive execution plan usable for database
+    Area that we the row set (table, view, result of join or group)
+    Produces a row source tree
+    
+
+    - Execution order
+    - Access methods
+    - Join methods
+    - Data operation (filter, sort)
